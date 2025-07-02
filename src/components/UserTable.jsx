@@ -7,8 +7,7 @@ import {
   selectUser,
 } from '../redux/actions';
 import ConfirmModal from './ConfirmModal';
-import { useNavigate, useRouter } from '@tanstack/react-router';
-import { detailRoute } from '../router';
+import { useNavigate } from '@tanstack/react-router';
 const PAGE_SIZE = 5; // Number of users per page
 
 const UserTable = () => {
