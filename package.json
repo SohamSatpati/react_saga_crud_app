@@ -23,7 +23,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "test:coverage": "react-scripts test --coverage",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
     "server": "json-server --watch src/db.json --port 3001",
     "eject": "react-scripts eject"
   },
