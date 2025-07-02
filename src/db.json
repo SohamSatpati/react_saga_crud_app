@@ -4,7 +4,7 @@
       "id": "1",
       "name": "Vin Wheway",
       "email": "vwheway0@wordpress.org",
-      "gender": "Male",
+      "gender": "Female",
       "address": "602 Dryden Center",
       "phone": "6062116701"
     },
@@ -135,14 +135,6 @@
       "gender": "Female",
       "address": "70062 Atwood Place",
       "phone": "4929915669"
-    },
-    {
-      "id": "22",
-      "name": "Andriana Newens",
-      "email": "anewensl@springer.com",
-      "gender": "Female",
-      "address": "0 Merchant Plaza",
-      "phone": "8834678998"
     },
     {
       "id": "23",

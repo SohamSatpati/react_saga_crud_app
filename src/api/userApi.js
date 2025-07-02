@@ -1,7 +1,7 @@
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/users';
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 export const getUsers = async () => {
-  const response = await fetch(BASE_URL);
+  const response = await fetch(`${BASE_URL}/users`);
   if (!response.ok) {
     throw new Error('Failed to fetch users');
   }
@@ -9,7 +9,7 @@ export const getUsers = async () => {
 };
 
 export const getUserById = async (id) => {
-  const response = await fetch(`${BASE_URL}/${id}`);
+  const response = await fetch(`${BASE_URL}/users/${id}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch user with id ${id}`);
   }
@@ -17,7 +17,7 @@ export const getUserById = async (id) => {
 };
 
 export const createUser = async (user) => {
-  const response = await fetch(BASE_URL, {
+  const response = await fetch(`${BASE_URL}/users`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ export const createUser = async (user) => {
 };
 
 export const updateUser = async (id, user) => {
-  const response = await fetch(`${BASE_URL}/${id}`, {
+  const response = await fetch(`${BASE_URL}/users/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export const updateUser = async (id, user) => {
 };
 
 export const deleteUser = async (id) => {
-  const response = await fetch(`${BASE_URL}/${id}`, {
+  const response = await fetch(`${BASE_URL}/users/${id}`, {
     method: 'DELETE',
   });
   if (!response.ok) {
