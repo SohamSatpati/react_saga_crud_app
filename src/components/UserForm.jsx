@@ -41,7 +41,7 @@ const UserForm = () => {
   const [pendingData, setPendingData] = useState(null);
   const dispatch = useDispatch();
   const selectedUser = useSelector((state) => state.selectedUser);
-  console.log('Selected User:', selectedUser);
+  // console.log('Selected User:', selectedUser);
   const [modal, setModal] = useState({ show: false, type: '', user: null });
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const UserForm = () => {
         setValue(key, selectedUser[key]);
       });
     } else {
-      console.log('Resetting form');
+      // console.log('Resetting form');
       reset();
     }
   }, [selectedUser, setValue, reset]);
@@ -68,7 +68,7 @@ const UserForm = () => {
 
   const handleModalConfirm = () => {
     if (modal.type === 'edit') {
-      console.log('Updating user:', modal.user);
+      // console.log('Updating user:', modal.user);
       dispatch(updateUser({ ...pendingData, id: selectedUser.id }));
       dispatch(clearSelectedUser());
       reset();

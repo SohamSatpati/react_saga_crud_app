@@ -20,7 +20,7 @@ const UserTable = () => {
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState({ show: false, type: '', user: null });
   const [currentPage, setCurrentPage] = useState(1);
-  console.log('modal:', modal);
+  // console.log('modal:', modal);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -52,7 +52,7 @@ const UserTable = () => {
     if (modal.type === 'delete') {
       dispatch(deleteUser(modal.user.id));
       if (selectedUser && selectedUser.id === modal.user.id) {
-        console.log('delete modal', { selectedUser }, { modal });
+        // console.log('delete modal', { selectedUser }, { modal });
         dispatch(clearSelectedUser());
       }
     }

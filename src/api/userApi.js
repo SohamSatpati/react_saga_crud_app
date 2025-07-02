@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/users';
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 export const getUsers = async () => {
   const response = await fetch(`${BASE_URL}/users`);

@@ -6,14 +6,14 @@ import { detailRoute } from '../router';
 const UserDetails = () => {
   const { params } = useMatch({ from: detailRoute.id });
   const navigate = useNavigate();
-  console.log(params.id);
+  // console.log(params.id);
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     getUserById(params.id)
       .then((response) => {
-        console.log('User details:', response);
+        // console.log('User details:', response);
         setUser(response);
       })
       .catch((error) => {

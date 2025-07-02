@@ -90,7 +90,7 @@ describe('UserForm', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: /add user/i }));
-    console.log(store.dispatch.mock.calls);
+    // console.log(store.dispatch.mock.calls);
     await waitFor(() => {
       expect(store.dispatch).toHaveBeenCalledWith(
         expect.objectContaining({
