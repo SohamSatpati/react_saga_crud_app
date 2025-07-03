@@ -8,7 +8,16 @@ import ConfirmModal from './ConfirmModal';
 const UserForm = () => {
   const userSchema = yup.object().shape({
     id: yup.string().optional(),
-    name: yup.string().min(2, 'Name is required').required('Name is required'),
+    firstname: yup
+      .string()
+      .matches(/^[A-Za-z]+$/, 'First name must contain only alphabets')
+      .min(2, 'First name is required')
+      .required('First name is required'),
+    lastname: yup
+      .string()
+      .matches(/^[A-Za-z]+$/, 'Last name must contain only alphabets')
+      .min(2, 'Last name is required')
+      .required('Last name is required'),
     email: yup
       .string()
       .email('Invalid email address')
@@ -42,8 +51,11 @@ const UserForm = () => {
   const [pendingData, setPendingData] = useState(null);
   const dispatch = useDispatch();
   const selectedUser = useSelector((state) => state.selectedUser);
+  console.log({ selectedUser });
+
   const users = useSelector((state) => state.users);
   const [modal, setModal] = useState({ show: false, type: '', user: null });
+
   const emailValue = watch('email');
   const isEmailDuplicate = (email) => {
     if (!email) return false;
@@ -53,8 +65,12 @@ const UserForm = () => {
 
   useEffect(() => {
     if (selectedUser) {
+      // Split name into firstname and lastname if needed
+      const [firstname = '', lastname = ''] = selectedUser?.name?.split(' ');
+      setValue('firstname', firstname);
+      setValue('lastname', lastname);
       Object.keys(selectedUser).forEach((key) => {
-        setValue(key, selectedUser[key]);
+        if (key !== 'name') setValue(key, selectedUser[key]);
       });
     } else {
       // console.log('Resetting form');
@@ -66,11 +82,15 @@ const UserForm = () => {
     if (isEmailDuplicate(data.email)) {
       return;
     }
+    const userData = {
+      ...data,
+      name: `${data.firstname} ${data.lastname}`,
+    };
     if (selectedUser) {
-      setPendingData(data);
+      setPendingData(userData);
       setModal({ show: true, type: 'edit', user: selectedUser });
     } else {
-      const { id, ...rest } = data;
+      const { id, ...rest } = userData;
       dispatch(addUser(rest));
       reset();
     }
@@ -103,17 +123,39 @@ const UserForm = () => {
           <div className='row g-3'>
             <input {...register('id')} type='hidden' />
             <div className='col-12 col-md-6 mb-3'>
-              <label htmlFor='name' className='form-label'>
-                Name
+              <label htmlFor='firstname' className='form-label'>
+                First Name
               </label>
               <input
-                {...register('name')}
-                id='name'
-                className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                placeholder='Enter name'
+                {...register('firstname')}
+                id='firstname'
+                className={`form-control ${
+                  errors.firstname ? 'is-invalid' : ''
+                }`}
+                placeholder='Enter first name'
               />
-              {errors.name && (
-                <div className='invalid-feedback'>{errors.name.message}</div>
+              {errors.firstname && (
+                <div className='invalid-feedback'>
+                  {errors.firstname.message}
+                </div>
+              )}
+            </div>
+            <div className='col-12 col-md-6 mb-3'>
+              <label htmlFor='lastname' className='form-label'>
+                Last Name
+              </label>
+              <input
+                {...register('lastname')}
+                id='lastname'
+                className={`form-control ${
+                  errors.lastname ? 'is-invalid' : ''
+                }`}
+                placeholder='Enter last name'
+              />
+              {errors.lastname && (
+                <div className='invalid-feedback'>
+                  {errors.lastname.message}
+                </div>
               )}
             </div>
             <div className='col-12 col-md-6 mb-3'>
