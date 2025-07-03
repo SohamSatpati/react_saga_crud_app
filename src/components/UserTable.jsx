@@ -9,6 +9,7 @@ import {
 import ConfirmModal from './ConfirmModal';
 import { useNavigate, useMatch } from '@tanstack/react-router';
 import { indexRoute } from '../router';
+import SkeletonRow from './SkeletonRow';
 const PAGE_SIZE = 5; // Number of users per page
 
 const UserTable = () => {
@@ -27,6 +28,8 @@ const UserTable = () => {
   // const reduxState = useSelector((state) => state);
   // console.log('Redux State:', reduxState);
   const users = useSelector((state) => state?.users);
+  const loading = useSelector((state) => state.loading);
+
   const selectedUser = useSelector((state) => state.selectedUser);
   const [searchInput, setSearchInput] = useState('');
   const [modal, setModal] = useState({ show: false, type: '', user: null });
@@ -113,7 +116,7 @@ const UserTable = () => {
   }
 
   // Pagination logic
-  const totalUsers = filteredUsers ? filteredUsers.length : 0;
+  // const totalUsers = filteredUsers ? filteredUsers.length : 0;
   // const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
   // const paginatedUsers =
   //   filteredUsers &&
@@ -223,7 +226,15 @@ const UserTable = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedUsers && paginatedUsers.length > 0 ? (
+                {loading ? (
+                  <>
+                    <SkeletonRow />
+                    <SkeletonRow />
+                    <SkeletonRow />
+                    <SkeletonRow />
+                    <SkeletonRow />
+                  </>
+                ) : paginatedUsers && paginatedUsers.length > 0 ? (
                   paginatedUsers.map((user) => (
                     <tr
                       key={user.id}

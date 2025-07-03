@@ -2,7 +2,7 @@ import * as types from './types';
 
 export const fetchUsers = () => {
   return {
-    type: types.FETCH_USERS,
+    type: types.FETCH_USERS_REQUEST,
   };
 };
 

@@ -63,7 +63,7 @@ const UserForm = () => {
     resolver: yupResolver(userSchema),
   });
   const [pendingData, setPendingData] = useState(null);
-  const [customHobby, setCustomHobby] = useState('');
+  // const [customHobby, setCustomHobby] = useState('');
   const hobbiesValue = watch('hobbies') || [];
   const dispatch = useDispatch();
   const selectedUser = useSelector((state) => state.selectedUser);

@@ -3,6 +3,13 @@ import * as types from './types';
 
 export default function userReducer(state = initialState, action) {
   switch (action.type) {
+    case types.FETCH_USERS_REQUEST:
+      return { ...state, loading: true };
+    case types.FETCH_USERS_SUCCESS:
+      return { ...state, users: action.payload, loading: false };
+    case types.FETCH_USERS_FAILURE:
+      return { ...state, loading: false };
+
     case types.SET_USERS:
       return {
         ...state,

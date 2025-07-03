@@ -195,13 +195,19 @@
       "hobby": null
     },
     {
+      "firstname": "Daria",
+      "lastname": "Du",
       "id": "21",
-      "name": "Daria Du Fray",
       "email": "dduk@qq.com",
       "gender": "Female",
       "address": "Apt 263",
       "phone": "3223338352",
-      "hobby": null
+      "hobby": null,
+      "hobbies": [
+        "Music"
+      ],
+      "customHobby": "",
+      "name": "Daria Du"
     },
     {
       "id": "22",
@@ -959,11 +965,25 @@
       "hobby": null,
       "customHobby": "Laufer",
       "hobbies": [
-        "Sports",
-        "Music",
         "Laufer"
       ],
       "name": "John Deo"
+    },
+    {
+      "firstname": "Rocky",
+      "lastname": "Balboa",
+      "id": "8ea8",
+      "email": "rocky@test.com",
+      "phone": "4564345454",
+      "gender": "Male",
+      "address": "123 street road, usa",
+      "hobbies": [
+        "Sports",
+        "Music",
+        "Boxing"
+      ],
+      "customHobby": "Boxing",
+      "name": "Rocky Balboa"
     }
   ]
 }

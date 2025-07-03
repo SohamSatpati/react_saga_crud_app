@@ -1,4 +1,4 @@
-import { call, put, all, takeEvery } from 'redux-saga/effects';
+import { call, put, all, takeEvery, takeLatest } from 'redux-saga/effects';
 import * as api from '../api/userApi';
 import * as types from './types';
 import * as actions from './actions';
@@ -7,9 +7,10 @@ import { toast } from 'react-toastify';
 export function* fetchUsersSaga() {
   try {
     const response = yield call(api.getUsers);
+    yield put({ type: types.FETCH_USERS_SUCCESS, payload: response });
     yield put(actions.setUsers(response));
   } catch (error) {
-    toast.error('Failed to fetch users!');
+    yield put({ type: types.FETCH_USERS_FAILURE });
   }
 }
 
@@ -42,10 +43,10 @@ export function* deleteUserSaga(action) {
     toast.error('Failed to delete user');
   }
 }
-
 export default function* rootSaga() {
   yield all([
-    takeEvery(types.FETCH_USERS, fetchUsersSaga),
+    yield takeLatest(types.FETCH_USERS_REQUEST, fetchUsersSaga),
+    // takeEvery(types.FETCH_USERS, fetchUsersSaga),
     takeEvery(types.ADD_USER, addUserSaga),
     takeEvery(types.UPDATE_USER, updateUserSaga),
     takeEvery(types.DELETE_USER, deleteUserSaga),
