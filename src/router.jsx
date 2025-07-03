@@ -23,6 +23,10 @@ const rootRoute = new RootRoute({
 export const indexRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/',
+  validateSearch: (search = {}) => ({
+    page: Number(search.page ?? 1),
+    from: search.from ?? '',
+  }),
   component: () => (
     <div className='container mt-4'>
       <UserForm />
@@ -35,6 +39,10 @@ export const indexRoute = new Route({
 export const detailRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/user/$id',
+  validateSearch: (search = {}) => ({
+    page: Number(search.page ?? 1),
+    from: search.from ?? '',
+  }),
   component: UserDetails,
 });
 

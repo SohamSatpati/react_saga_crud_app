@@ -285,7 +285,7 @@
       "name": "Emlynne Dougherty",
       "email": "edougherty14@php.net",
       "gender": "Female",
-      "address": "0 Clarendon Lane",
+      "address": "10 Clarendon Lane",
       "phone": "9473629503"
     },
     {
@@ -405,7 +405,7 @@
       "name": "Inna Anand",
       "email": "ianand1k@ycombinator.com",
       "gender": "Female",
-      "address": "297 Crest Line Park",
+      "address": "297 Crest Line Park, USA",
       "phone": "7672341858"
     },
     {
@@ -697,14 +697,6 @@
       "phone": "7701918432"
     },
     {
-      "id": "94",
-      "name": "Marji Raftery",
-      "email": "mraftery2l@house.gov",
-      "gender": "Female",
-      "address": "7 Sachtjen Parkway",
-      "phone": "4213183314"
-    },
-    {
       "id": "95",
       "name": "Giff Shadrack",
       "email": "gshadrack2m@scribd.com",
@@ -762,11 +754,19 @@
     },
     {
       "id": "b707",
-      "name": "john deo",
+      "name": "John Deo",
       "email": "johnd@test.com",
       "phone": "3232131232",
       "gender": "Male",
       "address": "123 Street, USA"
+    },
+    {
+      "id": "472c",
+      "name": "Jane Deo",
+      "email": "janed@test.com",
+      "phone": "32455465666",
+      "gender": "Female",
+      "address": "345 Street, USA"
     }
   ]
 }

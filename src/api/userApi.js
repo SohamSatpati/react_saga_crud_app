@@ -1,5 +1,9 @@
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+let BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
+// Fallback to localhost if offline
+if (!navigator.onLine) {
+  BASE_URL = 'http://localhost:3001';
+}
 export const getUsers = async () => {
   const response = await fetch(`${BASE_URL}/users`);
   if (!response.ok) {

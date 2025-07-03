@@ -7,20 +7,36 @@ import {
   selectUser,
 } from '../redux/actions';
 import ConfirmModal from './ConfirmModal';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useMatch } from '@tanstack/react-router';
+import { indexRoute } from '../router';
 const PAGE_SIZE = 5; // Number of users per page
 
 const UserTable = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { search: routeSearch } = useMatch({ from: indexRoute.id });
+  // const getSafeSearchParams = () => {
+  //   try {
+  //     // eslint-disable-next-line react-hooks/rules-of-hooks
+  //     return typeof useSearch === 'function' ? useSearch() || {} : {};
+  //   } catch {
+  //     return {};
+  //   }
+  // };
+  // const searchParams = getSafeSearchParams();
   // const reduxState = useSelector((state) => state);
   // console.log('Redux State:', reduxState);
   const users = useSelector((state) => state?.users);
   const selectedUser = useSelector((state) => state.selectedUser);
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [modal, setModal] = useState({ show: false, type: '', user: null });
-  const [currentPage, setCurrentPage] = useState(1);
-  // console.log('modal:', modal);
+  // const [currentPage, setCurrentPage] = useState(
+  //   Number(searchParams.page) || 1
+  // );
+  const currentPage = Number(routeSearch.page) || 1;
+
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  console.log({ currentPage });
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -63,29 +79,61 @@ const UserTable = () => {
     setModal({ show: false, type: '', user: null });
   };
 
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        // Toggle direction
+        return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
   const filteredUsers =
     users &&
     users.filter(
       (user) =>
-        user.name.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase())
+        user.name.toLowerCase().includes(searchInput.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchInput.toLowerCase())
     );
+  const totalPages = Math.ceil(
+    (filteredUsers ? filteredUsers.length : 0) / PAGE_SIZE
+  );
+  const clampedPage = Math.min(currentPage, totalPages || 1);
+
+  let sortedUsers = filteredUsers ? [...filteredUsers] : [];
+  if (sortConfig.key) {
+    sortedUsers.sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key])
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      if (a[sortConfig.key] > b[sortConfig.key])
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
   // Pagination logic
   const totalUsers = filteredUsers ? filteredUsers.length : 0;
-  const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
+  // const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
+  // const paginatedUsers =
+  //   filteredUsers &&
+  //   filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   const paginatedUsers =
-    filteredUsers &&
-    filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    sortedUsers &&
+    sortedUsers.slice((clampedPage - 1) * PAGE_SIZE, clampedPage * PAGE_SIZE);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    // setCurrentPage(page);
+    navigate({ search: { ...routeSearch, page: page.toString() } });
   };
 
   // Reset to page 1 when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
+  // useEffect(() => {
+  //   setCurrentPage(Number(searchParams.page) || 1);
+  // }, [searchParams.page]);
+
+  // ...existing imports and code...
 
   return (
     <>
@@ -96,14 +144,14 @@ const UserTable = () => {
               type='text'
               placeholder='Search by name or email'
               className='form-control mb-3'
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ paddingRight: search ? 32 : undefined }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              style={{ paddingRight: searchInput ? 32 : undefined }}
             />
-            {search && (
+            {searchInput && (
               <button
                 type='button'
-                onClick={() => setSearch('')}
+                onClick={() => setSearchInput('')}
                 style={{
                   position: 'absolute',
                   right: 12,
@@ -123,79 +171,120 @@ const UserTable = () => {
               </button>
             )}
           </div>
-          <table className='table table-bordered'>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Gender</th>
-                <th>Address</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedUsers && paginatedUsers.length > 0 ? (
-                paginatedUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() =>
-                      navigate({
-                        to: '/user/$id', // or '/user/:id' if you're using colon-style paths
-                        params: { id: user.id.toString() },
-                      })
-                    }
-                  >
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td>{user.phone}</td>
-                    <td>{user.gender}</td>
-                    <td>{user.address}</td>
-                    <td>
-                      <button
-                        className='btn btn-sm btn-info me-2'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(user);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className='btn btn-sm btn-danger'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(user);
-                        }}
-                        disabled={selectedUser && selectedUser.id === user.id}
-                      >
-                        Delete
-                      </button>
+          {/* Responsive table wrapper */}
+          <div className='table-responsive'>
+            <table className='table table-bordered align-middle'>
+              <thead className='table-light'>
+                <tr>
+                  {['name', 'email', 'phone', 'gender', 'address'].map(
+                    (col) => (
+                      <th key={col} style={{ whiteSpace: 'nowrap' }}>
+                        {col.charAt(0).toUpperCase() + col.slice(1)}
+                        <button
+                          type='button'
+                          onClick={() => handleSort(col)}
+                          style={{
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: 'pointer',
+                            marginLeft: 4,
+                            color:
+                              sortConfig.key === col &&
+                              sortConfig.direction === 'asc'
+                                ? 'blue'
+                                : '#888',
+                          }}
+                          aria-label={`Sort ${col} ascending`}
+                        >
+                          ▲
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => handleSort(col)}
+                          style={{
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: 'pointer',
+                            marginLeft: 2,
+                            color:
+                              sortConfig.key === col &&
+                              sortConfig.direction === 'desc'
+                                ? 'blue'
+                                : '#888',
+                          }}
+                          aria-label={`Sort ${col} descending`}
+                        >
+                          ▼
+                        </button>
+                      </th>
+                    )
+                  )}
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedUsers && paginatedUsers.length > 0 ? (
+                  paginatedUsers.map((user) => (
+                    <tr
+                      key={user.id}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() =>
+                        navigate({
+                          to: '/user/$id',
+                          params: { id: user.id.toString() },
+                          search: { page: clampedPage },
+                        })
+                      }
+                    >
+                      <td>{user.name}</td>
+                      <td>{user.email}</td>
+                      <td>{user.phone}</td>
+                      <td>{user.gender}</td>
+                      <td>{user.address}</td>
+                      <td>
+                        <button
+                          className='btn btn-sm btn-info me-2 mb-1 mb-md-0'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(user);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className='btn btn-sm btn-danger'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(user);
+                          }}
+                          disabled={selectedUser && selectedUser.id === user.id}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className='text-center'>
+                      No users found.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className='text-center'>
-                    No users found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-
+                )}
+              </tbody>
+            </table>
+          </div>
           {/* Pagination */}
           {totalPages > 1 && (
             <nav>
-              <ul className='pagination justify-content-center'>
+              <ul className='pagination justify-content-center flex-wrap'>
                 <li
-                  className={`page-item${currentPage === 1 ? ' disabled' : ''}`}
+                  className={`page-item${clampedPage === 1 ? ' disabled' : ''}`}
                 >
                   <button
                     className='page-link'
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
+                    onClick={() => handlePageChange(clampedPage - 1)}
+                    disabled={clampedPage === 1}
                   >
                     Previous
                   </button>
@@ -204,7 +293,7 @@ const UserTable = () => {
                   <li
                     key={i + 1}
                     className={`page-item${
-                      currentPage === i + 1 ? ' active' : ''
+                      clampedPage === i + 1 ? ' active' : ''
                     }`}
                   >
                     <button
@@ -217,13 +306,13 @@ const UserTable = () => {
                 ))}
                 <li
                   className={`page-item${
-                    currentPage === totalPages ? ' disabled' : ''
+                    clampedPage === totalPages ? ' disabled' : ''
                   }`}
                 >
                   <button
                     className='page-link'
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    onClick={() => handlePageChange(clampedPage + 1)}
+                    disabled={clampedPage === totalPages}
                   >
                     Next
                   </button>

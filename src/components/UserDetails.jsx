@@ -4,9 +4,12 @@ import { getUserById } from '../api/userApi'; // Renamed for clarity
 import { useNavigate } from '@tanstack/react-router';
 import { detailRoute } from '../router';
 const UserDetails = () => {
-  const { params } = useMatch({ from: detailRoute.id });
+  const { params, search } = useMatch({ from: detailRoute.id });
+
   const navigate = useNavigate();
-  // console.log(params.id);
+
+  const page = Number(search.page) || 1;
+  console.log(page);
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
 
@@ -36,6 +39,7 @@ const UserDetails = () => {
           onClick={() =>
             navigate({
               to: '/',
+              search: { page }, // go back to correct page
             })
           }
         >

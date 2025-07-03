@@ -35,14 +35,21 @@ const UserForm = () => {
     reset,
     setValue,
     formState: { errors },
+    watch,
   } = useForm({
     resolver: yupResolver(userSchema),
   });
   const [pendingData, setPendingData] = useState(null);
   const dispatch = useDispatch();
   const selectedUser = useSelector((state) => state.selectedUser);
-  // console.log('Selected User:', selectedUser);
+  const users = useSelector((state) => state.users);
   const [modal, setModal] = useState({ show: false, type: '', user: null });
+  const emailValue = watch('email');
+  const isEmailDuplicate = (email) => {
+    if (!email) return false;
+    if (selectedUser && selectedUser.email === email) return false;
+    return users.some((user) => user.email === email);
+  };
 
   useEffect(() => {
     if (selectedUser) {
@@ -56,6 +63,9 @@ const UserForm = () => {
   }, [selectedUser, setValue, reset]);
 
   const onSubmit = (data) => {
+    if (isEmailDuplicate(data.email)) {
+      return;
+    }
     if (selectedUser) {
       setPendingData(data);
       setModal({ show: true, type: 'edit', user: selectedUser });
@@ -81,104 +91,120 @@ const UserForm = () => {
     setModal({ show: false, type: '', user: null });
     setPendingData(null);
   };
+  // ...existing imports and code...
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className='mb-4'>
-        <div className='row g-3'>
-          <div className='col-md-6'>
+        <div
+          className='container p-3 p-md-4 border rounded'
+          style={{ maxWidth: 600 }}
+        >
+          <div className='row g-3'>
             <input {...register('id')} type='hidden' />
-            <label htmlFor='name' className='form-label'>
-              Name
-            </label>
-            <input
-              {...register('name')}
-              id='name'
-              className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-              placeholder='Enter name'
-            />
-            {errors.name && (
-              <div className='invalid-feedback'>{errors.name.message}</div>
-            )}
-          </div>
-          <div className='col-md-6'>
-            <label htmlFor='email' className='form-label'>
-              Email
-            </label>
-            <input
-              {...register('email')}
-              type='email'
-              id='email'
-              className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-              placeholder='Enter email'
-            />
-            {errors.email && (
-              <div className='invalid-feedback'>{errors.email.message}</div>
-            )}
-          </div>
-          <div className='col-md-6'>
-            <label htmlFor='phone' className='form-label'>
-              Phone
-            </label>
-            <input
-              {...register('phone')}
-              type='tel'
-              id='phone'
-              className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-              placeholder='Enter phone number'
-              onInput={(e) =>
-                (e.target.value = e.target.value.replace(/\D/g, ''))
-              }
-            />
-            {errors.phone && (
-              <div className='invalid-feedback'>{errors.phone.message}</div>
-            )}
-          </div>
-          <div className='col-md-6'>
-            <label htmlFor='gender' className='form-label'>
-              Gender
-            </label>
-            <select
-              {...register('gender')}
-              id='gender'
-              className={`form-select ${errors.gender ? 'is-invalid' : ''}`}
-            >
-              <option value=''>Select Gender</option>
-              <option value='Male'>Male</option>
-              <option value='Female'>Female</option>
-            </select>
-            {errors.gender && (
-              <div className='invalid-feedback'>{errors.gender.message}</div>
-            )}
-          </div>
-          <div className='col-md-12'>
-            <label htmlFor='address' className='form-label'>
-              Address
-            </label>
-            <textarea
-              {...register('address')}
-              id='address'
-              className={`form-control ${errors.address ? 'is-invalid' : ''}`}
-              placeholder='Enter address'
-              rows='3'
-            ></textarea>
-            {errors.address && (
-              <div className='invalid-feedback'>{errors.address.message}</div>
-            )}
-          </div>
-          <div className='col-md-12 text-end'>
-            <button type='submit' className='btn btn-primary'>
-              {selectedUser ? 'Update User' : 'Add User'}
-            </button>
-            <button
-              type='reset'
-              className='btn btn-secondary ms-2'
-              onClick={() => {
-                dispatch(clearSelectedUser());
-                reset();
-              }}
-            >
-              Cancel
-            </button>
+            <div className='col-12 col-md-6 mb-3'>
+              <label htmlFor='name' className='form-label'>
+                Name
+              </label>
+              <input
+                {...register('name')}
+                id='name'
+                className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                placeholder='Enter name'
+              />
+              {errors.name && (
+                <div className='invalid-feedback'>{errors.name.message}</div>
+              )}
+            </div>
+            <div className='col-12 col-md-6 mb-3'>
+              <label htmlFor='email' className='form-label'>
+                Email
+              </label>
+              <input
+                {...register('email')}
+                type='email'
+                id='email'
+                className={`form-control ${
+                  errors.email || isEmailDuplicate(emailValue)
+                    ? 'is-invalid'
+                    : ''
+                }`}
+                placeholder='Enter email'
+              />
+              {(errors.email && (
+                <div className='invalid-feedback'>{errors.email.message}</div>
+              )) ||
+                (isEmailDuplicate(emailValue) && (
+                  <div className='invalid-feedback d-block'>
+                    This email is already registered.
+                  </div>
+                ))}
+            </div>
+            <div className='col-12 col-md-6 mb-3'>
+              <label htmlFor='phone' className='form-label'>
+                Phone
+              </label>
+              <input
+                {...register('phone')}
+                type='tel'
+                id='phone'
+                className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
+                placeholder='Enter phone number'
+                onInput={(e) =>
+                  (e.target.value = e.target.value.replace(/\D/g, ''))
+                }
+              />
+              {errors.phone && (
+                <div className='invalid-feedback'>{errors.phone.message}</div>
+              )}
+            </div>
+            <div className='col-12 col-md-6 mb-3'>
+              <label htmlFor='gender' className='form-label'>
+                Gender
+              </label>
+              <select
+                {...register('gender')}
+                id='gender'
+                className={`form-select ${errors.gender ? 'is-invalid' : ''}`}
+              >
+                <option value=''>Select Gender</option>
+                <option value='Male'>Male</option>
+                <option value='Female'>Female</option>
+              </select>
+              {errors.gender && (
+                <div className='invalid-feedback'>{errors.gender.message}</div>
+              )}
+            </div>
+            <div className='col-12 mb-3'>
+              <label htmlFor='address' className='form-label'>
+                Address
+              </label>
+              <textarea
+                {...register('address')}
+                id='address'
+                className={`form-control ${errors.address ? 'is-invalid' : ''}`}
+                placeholder='Enter address'
+                rows='3'
+              ></textarea>
+              {errors.address && (
+                <div className='invalid-feedback'>{errors.address.message}</div>
+              )}
+            </div>
+            <div className='col-12 d-grid gap-2 d-md-flex justify-content-md-end mb-2'>
+              <button type='submit' className='btn btn-primary w-100 w-md-auto'>
+                {selectedUser ? 'Update User' : 'Add User'}
+              </button>
+              <button
+                type='reset'
+                className='btn btn-secondary w-100 w-md-auto ms-md-2'
+                onClick={() => {
+                  dispatch(clearSelectedUser());
+                  reset();
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </form>

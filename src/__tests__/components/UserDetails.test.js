@@ -19,12 +19,14 @@ import * as tanstackRouter from '@tanstack/react-router';
 // });
 
 // jest.spyOn(tanstackRouter, 'useNavigate').mockReturnValue(jest.fn());
+let mockPage = 1;
 jest.mock('@tanstack/react-router', () => {
   const actual = jest.requireActual('@tanstack/react-router');
   return {
     ...actual,
     useMatch: () => ({
       params: { id: '123' },
+      search: { page: mockPage },
     }),
     useNavigate: () => jest.fn(),
   };
@@ -92,6 +94,9 @@ describe('UserDetails', () => {
     render(<UserDetails />);
     await waitFor(() => screen.getByText('Jane Doe'));
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
-    expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: { page: mockPage },
+    });
   });
 });

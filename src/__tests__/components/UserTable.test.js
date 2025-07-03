@@ -14,6 +14,8 @@ jest.mock('../../components/ConfirmModal', () => (props) => (
 ));
 
 //Mock useNavigate from @tanstack/react-router
+const mockNavigate = jest.fn();
+let mockPage = 1;
 jest.mock('@tanstack/react-router', () => {
   const actual = jest.requireActual('@tanstack/react-router');
   return {
@@ -23,7 +25,10 @@ jest.mock('@tanstack/react-router', () => {
         RouterProvider: {router?.toString?.()}
       </div>
     ),
-    useNavigate: () => jest.fn(),
+    useNavigate: () => mockNavigate,
+    useMatch: () => ({
+      search: { page: mockPage },
+    }),
   };
 });
 
@@ -52,6 +57,7 @@ const users = [
 describe('UserTable', () => {
   let store;
   beforeEach(() => {
+    mockNavigate.mockClear();
     store = mockStore({
       users,
       selectedUser: null,
@@ -122,10 +128,10 @@ describe('UserTable', () => {
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
   });
   it('edit/delete buttons do not trigger row navigation', () => {
-    const mockNavigate = jest.fn();
-    jest
-      .spyOn(require('@tanstack/react-router'), 'useNavigate')
-      .mockReturnValue(mockNavigate);
+    // const mockNavigate = jest.fn();
+    // jest
+    //   .spyOn(require('@tanstack/react-router'), 'useNavigate')
+    //   .mockReturnValue(mockNavigate);
 
     render(
       <Provider store={store}>
@@ -180,28 +186,37 @@ describe('UserTable', () => {
       id: i + 1,
       name: `User ${i + 1}`,
       email: `user${i + 1}@example.com`,
+      phone: '',
+      gender: '',
+      address: '',
     }));
     store = mockStore({
       users: manyUsers,
       selectedUser: null,
     });
-    render(
+    const { rerender } = render(
       <Provider store={store}>
         <UserTable />
       </Provider>
     );
-    //Previous button should be disabled on first page
+    // Previous button should be disabled on first page
     expect(screen.getByRole('button', { name: /previous/i })).toBeDisabled();
-    //Go to last page
-    fireEvent.click(screen.getByText('2'));
+
+    // Go to last page (simulate clicking page 2)
+    mockPage = 2;
+    rerender(
+      <Provider store={store}>
+        <UserTable />
+      </Provider>
+    );
     expect(screen.getByRole('button', { name: /next/i })).toBeDisabled();
   });
 
   it('calls navigation when row is clicked', () => {
-    const mockNavigate = jest.fn();
-    jest
-      .spyOn(require('@tanstack/react-router'), 'useNavigate')
-      .mockReturnValue(mockNavigate);
+    // const mockNavigate = jest.fn();
+    // jest
+    //   .spyOn(require('@tanstack/react-router'), 'useNavigate')
+    //   .mockReturnValue(mockNavigate);
 
     render(
       <Provider store={store}>
