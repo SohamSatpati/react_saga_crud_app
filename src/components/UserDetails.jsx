@@ -31,6 +31,7 @@ const UserDetails = () => {
   if (!user) {
     return <div>Loading...</div>;
   }
+
   return (
     <>
       <div className='container mt-4 p-4 border rounded'>
@@ -50,6 +51,12 @@ const UserDetails = () => {
         <p>Phone: {user.phone}</p>
         <p>Gender: {user.gender}</p>
         <p>Address: {user.address}</p>
+        <p>
+          Hobbies:{' '}
+          {user?.hobbies && user?.hobbies
+            ? user?.hobbies?.join(' ,')
+            : 'No Hobbies Found!'}
+        </p>
       </div>
     </>
   );

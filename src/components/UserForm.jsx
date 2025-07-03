@@ -36,6 +36,20 @@ const UserForm = () => {
       .string()
       .min(2, 'Address is required')
       .required('Address is required'),
+    hobbies: yup
+      .array()
+      .of(yup.string())
+      .min(1, 'Select at least one hobby')
+      .required('Select at least one hobby'),
+    customHobby: yup.string().when('hobbies', {
+      is: (hobbies) => hobbies && hobbies.includes('Other'),
+      then: (schema) =>
+        schema
+          .trim()
+          .min(2, 'Please enter your custom hobby')
+          .required('Please enter your custom hobby'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   });
 
   const {
@@ -49,6 +63,8 @@ const UserForm = () => {
     resolver: yupResolver(userSchema),
   });
   const [pendingData, setPendingData] = useState(null);
+  const [customHobby, setCustomHobby] = useState('');
+  const hobbiesValue = watch('hobbies') || [];
   const dispatch = useDispatch();
   const selectedUser = useSelector((state) => state.selectedUser);
   console.log({ selectedUser });
@@ -69,11 +85,37 @@ const UserForm = () => {
       const [firstname = '', lastname = ''] = selectedUser?.name?.split(' ');
       setValue('firstname', firstname);
       setValue('lastname', lastname);
+
+      // Set all other fields except name
       Object.keys(selectedUser).forEach((key) => {
-        if (key !== 'name') setValue(key, selectedUser[key]);
+        if (key !== 'name' && key !== 'hobbies')
+          setValue(key, selectedUser[key]);
       });
+
+      // Handle hobbies
+      if (Array.isArray(selectedUser.hobbies)) {
+        // Default hobby options
+        const defaultHobbies = ['Reading', 'Sports', 'Music'];
+        // Find which hobbies are in the default list
+        const checkedHobbies = selectedUser.hobbies.filter((h) =>
+          defaultHobbies.includes(h)
+        );
+        // Find custom hobby (not in default list)
+        const custom = selectedUser.hobbies.find(
+          (h) => !defaultHobbies.includes(h)
+        );
+        if (custom) {
+          setValue('hobbies', [...checkedHobbies, 'Other']);
+          setValue('customHobby', custom);
+        } else {
+          setValue('hobbies', checkedHobbies);
+          setValue('customHobby', '');
+        }
+      } else {
+        setValue('hobbies', []);
+        setValue('customHobby', '');
+      }
     } else {
-      // console.log('Resetting form');
       reset();
     }
   }, [selectedUser, setValue, reset]);
@@ -82,10 +124,28 @@ const UserForm = () => {
     if (isEmailDuplicate(data.email)) {
       return;
     }
+    let hobbies = data.hobbies || [];
+
+    // Remove any previous custom hobby if "Other" is not selected
+    const defaultHobbies = ['Reading', 'Sports', 'Music'];
+    let custom = data.customHobby?.trim();
+    if (hobbies.includes('Other') && custom) {
+      // Remove "Other" and add the custom hobby
+      hobbies = hobbies.filter(
+        (h) => h !== 'Other' && defaultHobbies.includes(h)
+      );
+      hobbies.push(custom);
+    } else {
+      // Only keep default hobbies
+      hobbies = hobbies.filter((h) => defaultHobbies.includes(h));
+    }
+
     const userData = {
       ...data,
+      hobbies,
       name: `${data.firstname} ${data.lastname}`,
     };
+
     if (selectedUser) {
       setPendingData(userData);
       setModal({ show: true, type: 'edit', user: selectedUser });
@@ -234,6 +294,51 @@ const UserForm = () => {
                 {errors.gender && (
                   <div className='invalid-feedback d-block'>
                     {errors.gender.message}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className='col-12 col-md-6 mb-3'>
+              <label className='form-label d-block'>Hobbies</label>
+              <div>
+                {['Reading', 'Sports', 'Music', 'Other'].map((hobby) => (
+                  <div className='form-check form-check-inline' key={hobby}>
+                    <input
+                      {...register('hobbies')}
+                      className='form-check-input'
+                      type='checkbox'
+                      id={`hobby-${hobby.toLowerCase()}`}
+                      value={hobby}
+                    />
+                    <label
+                      className='form-check-label'
+                      htmlFor={`hobby-${hobby.toLowerCase()}`}
+                    >
+                      {hobby}
+                    </label>
+                  </div>
+                ))}
+                {errors.hobbies && (
+                  <div className='invalid-feedback d-block'>
+                    {errors.hobbies.message}
+                  </div>
+                )}
+                {/* Show custom hobby input if "Other" is checked */}
+                {hobbiesValue.includes('Other') && (
+                  <div className='mt-2'>
+                    <input
+                      {...register('customHobby')}
+                      type='text'
+                      className={`form-control${
+                        errors.customHobby ? ' is-invalid' : ''
+                      }`}
+                      placeholder='Enter your hobby'
+                    />
+                    {errors.customHobby && (
+                      <div className='invalid-feedback d-block'>
+                        {errors.customHobby.message}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
