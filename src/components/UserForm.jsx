@@ -201,21 +201,42 @@ const UserForm = () => {
               )}
             </div>
             <div className='col-12 col-md-6 mb-3'>
-              <label htmlFor='gender' className='form-label'>
-                Gender
-              </label>
-              <select
-                {...register('gender')}
-                id='gender'
-                className={`form-select ${errors.gender ? 'is-invalid' : ''}`}
-              >
-                <option value=''>Select Gender</option>
-                <option value='Male'>Male</option>
-                <option value='Female'>Female</option>
-              </select>
-              {errors.gender && (
-                <div className='invalid-feedback'>{errors.gender.message}</div>
-              )}
+              <label className='form-label d-block'>Gender</label>
+              <div>
+                <div className='form-check form-check-inline'>
+                  <input
+                    {...register('gender')}
+                    className={`form-check-input${
+                      errors.gender ? ' is-invalid' : ''
+                    }`}
+                    type='radio'
+                    id='gender-male'
+                    value='Male'
+                  />
+                  <label className='form-check-label' htmlFor='gender-male'>
+                    Male
+                  </label>
+                </div>
+                <div className='form-check form-check-inline'>
+                  <input
+                    {...register('gender')}
+                    className={`form-check-input${
+                      errors.gender ? ' is-invalid' : ''
+                    }`}
+                    type='radio'
+                    id='gender-female'
+                    value='Female'
+                  />
+                  <label className='form-check-label' htmlFor='gender-female'>
+                    Female
+                  </label>
+                </div>
+                {errors.gender && (
+                  <div className='invalid-feedback d-block'>
+                    {errors.gender.message}
+                  </div>
+                )}
+              </div>
             </div>
             <div className='col-12 mb-3'>
               <label htmlFor='address' className='form-label'>
